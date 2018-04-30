@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oshyn.Modules.Forms.EmailSubmitAction", "Oshyn.Modules.Forms.EmailSubmitAction.csproj", "{07886A10-9343-4423-BDCF-2D14E5C5CF3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07886A10-9343-4423-BDCF-2D14E5C5CF3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07886A10-9343-4423-BDCF-2D14E5C5CF3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07886A10-9343-4423-BDCF-2D14E5C5CF3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07886A10-9343-4423-BDCF-2D14E5C5CF3E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {170A5C7C-C4A3-4E0E-B115-C4DD020D9D93}
+	EndGlobalSection
+EndGlobal
