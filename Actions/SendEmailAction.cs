@@ -2,6 +2,7 @@
 using Sitecore.Configuration;
 using Sitecore.Diagnostics;
 using Sitecore.ExperienceForms.Models;
+using Sitecore.ExperienceForms.Mvc.Models.Fields;
 using Sitecore.ExperienceForms.Processing;
 using Sitecore.ExperienceForms.Processing.Actions;
 using System;
@@ -184,6 +185,18 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
 
         private string GetFieldStringValue(object field)
         {
+            if (field != null && field is ListViewModel)
+            {
+                var listField = (ListViewModel)field;
+                
+                if (listField.Value == null || !listField.Value.Any())
+                {
+                    return string.Empty;
+                }
+
+                return string.Join(", ", listField.Value);
+            }
+
             return field?.GetType().GetProperty("Value")?.GetValue(field, null).ToString() ?? string.Empty;
         }
 
