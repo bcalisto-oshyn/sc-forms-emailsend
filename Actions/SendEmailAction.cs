@@ -24,16 +24,16 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
         {
             Assert.ArgumentNotNull(formSubmitContext, "formSubmitContext");
 
-            string fromValue = ReplaceTokens(data.From, formSubmitContext.Fields);
-            string toValue = ReplaceTokens(data.To, formSubmitContext.Fields);
-            string ccValue = ReplaceTokens(data.Cc, formSubmitContext.Fields);
-            string bccValue = ReplaceTokens(data.Bcc, formSubmitContext.Fields);
-            string subjectValue = ReplaceTokens(data.Subject, formSubmitContext.Fields);
-            string messageValue = ReplaceTokens(data.Message, formSubmitContext.Fields);
+            var fromValue = ReplaceTokens(data.From, formSubmitContext.Fields);
+            var toValue = ReplaceTokens(data.To, formSubmitContext.Fields);
+            var ccValue = ReplaceTokens(data.Cc, formSubmitContext.Fields);
+            var bccValue = ReplaceTokens(data.Bcc, formSubmitContext.Fields);
+            var subjectValue = ReplaceTokens(data.Subject, formSubmitContext.Fields);
+            var messageValue = ReplaceTokens(data.Message, formSubmitContext.Fields);
 
             if (string.IsNullOrWhiteSpace(fromValue))
             {
-                Logger.LogError("Send Email Action Error: No FROM address specified.");
+                Logger?.LogError("Send Email Action Error: No FROM address specified.");
                 return false;
             }
 
@@ -51,13 +51,13 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             }
             catch (FormatException ex)
             {
-                Logger.LogError($"Send Email Action Error: {fromValue} in the FROM field is not a valid email address.", ex, this);
+                Logger?.LogError($"Send Email Action Error: {fromValue} in the FROM field is not a valid email address.", ex, this);
                 return false;
             }
 
             if (!AddEmailAddresses(toValue, "To", mailMessage))
             {
-                Logger.LogError("Send Email Action Error: No TO address(es) specified.");
+                Logger?.LogError("Send Email Action Error: No TO address(es) specified.");
                 return false;
             }
 
@@ -74,19 +74,19 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Send Email Action Error: {ex.Message}", ex, this);
+                Logger?.LogError($"Send Email Action Error: {ex.Message}", ex, this);
                 return false;
             }
         }
 
-        private SmtpClient GetSmtpClient(CustomSmtpModel customSmtp)
+        protected SmtpClient GetSmtpClient(CustomSmtpModel customSmtp)
         {
             var smtpClient = new SmtpClient();
 
-            string smtpServerSetting = Settings.GetSetting("MailServer");
-            string smtpUserNameSetting = Settings.GetSetting("MailServerUserName");
-            string smtpPasswordSetting = Settings.GetSetting("MailServerPassword");
-            int smtpPortSetting = Settings.GetIntSetting("MailServerPort", 0);
+            var smtpServerSetting = Settings.GetSetting("MailServer");
+            var smtpUserNameSetting = Settings.GetSetting("MailServerUserName");
+            var smtpPasswordSetting = Settings.GetSetting("MailServerPassword");
+            var smtpPortSetting = Settings.GetIntSetting("MailServerPort", 0);
 
             if (!string.IsNullOrWhiteSpace(smtpServerSetting))
                 smtpClient.Host = smtpServerSetting;
@@ -96,17 +96,11 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
                 smtpClient.Host = customSmtp.Host;
 
             if (!string.IsNullOrWhiteSpace(smtpUserNameSetting))
-            {
-                var credentials = new NetworkCredential(smtpUserNameSetting, !string.IsNullOrWhiteSpace(smtpPasswordSetting) ? smtpPasswordSetting : string.Empty);
-                smtpClient.Credentials = credentials;
-            }
+                smtpClient.Credentials = new NetworkCredential(smtpUserNameSetting, !string.IsNullOrWhiteSpace(smtpPasswordSetting) ? smtpPasswordSetting : string.Empty);
 
             //Custom SMTP credentials (Login, Password) override
             if (!string.IsNullOrWhiteSpace(customSmtp.Login))
-            {
-                var credentials = new NetworkCredential(customSmtp.Login, !string.IsNullOrWhiteSpace(customSmtp.Password) ? customSmtp.Password : string.Empty);
-                smtpClient.Credentials = credentials;
-            }
+                smtpClient.Credentials = new NetworkCredential(customSmtp.Login, !string.IsNullOrWhiteSpace(customSmtp.Password) ? customSmtp.Password : string.Empty);
 
             if (smtpPortSetting > 0)
                 smtpClient.Port = smtpPortSetting;
@@ -122,77 +116,73 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             return smtpClient;
         }
 
-        private bool AddEmailAddresses(string addressValue, string fieldName, MailMessage mailMessage)
+        protected bool AddEmailAddresses(string addressValue, string fieldName, MailMessage mailMessage)
         {
-            string[] addressList = addressValue.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-            var addressCollection = mailMessage.GetType().GetProperty(fieldName).GetValue(mailMessage) as MailAddressCollection;
+            if (string.IsNullOrWhiteSpace(addressValue) || string.IsNullOrWhiteSpace(fieldName) || mailMessage == null)
+                return false;
 
-            if (addressList?.Length > 0)
+            var addressList = addressValue.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var addressCollection = mailMessage.GetType().GetProperty(fieldName)?.GetValue(mailMessage) as MailAddressCollection;
+
+            if (addressList.Length <= 0 || addressCollection == null)
+                return false;
+
+            foreach (var address in addressList)
             {
-                foreach (string address in addressList)
+                try
                 {
-                    try
-                    {
-                        var addressToAdd = new MailAddress(address);
-                        addressCollection.Add(addressToAdd);
-                    }
-                    catch
-                    {
-                        Logger.Warn($"Send Email Action Warning: {address} in the {fieldName.ToUpperInvariant()} field is not a valid email address.");
-                        continue;
-                    }
+                    var addressToAdd = new MailAddress(address);
+                    addressCollection.Add(addressToAdd);
+                }
+                catch
+                {
+                    Logger?.Warn($"Send Email Action Warning: {address} in the {fieldName.ToUpperInvariant()} field is not a valid email address.");
                 }
             }
 
-            if (addressCollection.Count > 0)
-                return true;
-
-            return false;
+            return addressCollection.Count > 0;
         }
 
-        private string ReplaceTokens(string template, IList<IViewModel> formFields)
+        protected string ReplaceTokens(string template, IList<IViewModel> formFields)
         {
             if (string.IsNullOrWhiteSpace(template))
                 return string.Empty;
 
             var tokenList = Regex.Matches(template, @"\[(.+?)\]");
-            var result = template;
 
-            if (tokenList != null && tokenList.Count > 0)
+            if (tokenList.Count <= 0)
+                return template;
+
+            var usedTokens = new Dictionary<string, bool>();
+
+            foreach (Match token in tokenList)
             {
-                var usedTokens = new Dictionary<string, bool>();
+                if (usedTokens.ContainsKey(token.Value))
+                    continue;
 
-                foreach (Match token in tokenList)
+                var tokenName = token.Value.TrimStart('[').TrimEnd(']');
+                var matchingField = formFields.FirstOrDefault(f => f.Name == tokenName);
+
+                if (matchingField != null)
                 {
-                    if (usedTokens.ContainsKey(token.Value))
-                        continue;
-
-                    var tokenName = token.Value.TrimStart('[').TrimEnd(']');
-                    var matchingField = formFields.FirstOrDefault(f => f.Name == tokenName);
-
-                    if (matchingField != null)
-                    {
-                        string fieldValue = GetFieldStringValue(matchingField);
-                        result = result.Replace(token.Value, fieldValue);
-                    }
-
-                    usedTokens.Add(token.Value, true);
+                    string fieldValue = GetFieldStringValue(matchingField);
+                    template = template.Replace(token.Value, fieldValue);
                 }
+
+                usedTokens.Add(token.Value, true);
             }
 
-            return result;
+            return template;
         }
 
-        private string GetFieldStringValue(object field)
+        protected string GetFieldStringValue(object field)
         {
             if (field != null && field is ListViewModel)
             {
                 var listField = (ListViewModel)field;
                 
                 if (listField.Value == null || !listField.Value.Any())
-                {
                     return string.Empty;
-                }
 
                 return string.Join(", ", listField.Value);
             }
@@ -200,21 +190,21 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             return field?.GetType().GetProperty("Value")?.GetValue(field, null).ToString() ?? string.Empty;
         }
 
-        private CustomSmtpModel ParseSmtpSettings(string settingsField)
+        protected CustomSmtpModel ParseSmtpSettings(string settingsField)
         {
             var customSmtp = new CustomSmtpModel();
 
-            if (!string.IsNullOrWhiteSpace(settingsField))
-            {
-                string finalXml = $"<CustomSmtpModel>{settingsField}</CustomSmtpModel>";
-                var serializer = new XmlSerializer(typeof(CustomSmtpModel));
+            if (string.IsNullOrWhiteSpace(settingsField))
+                return customSmtp;
 
-                using (var reader = new StringReader(finalXml))
-                {
-                    customSmtp = (CustomSmtpModel)serializer.Deserialize(reader);
-                }
+            var finalXml = $"<CustomSmtpModel>{settingsField}</CustomSmtpModel>";
+            var serializer = new XmlSerializer(typeof(CustomSmtpModel));
+
+            using (var reader = new StringReader(finalXml))
+            {
+                customSmtp = (CustomSmtpModel)serializer.Deserialize(reader);
             }
-            
+
             return customSmtp;
         }
     }
