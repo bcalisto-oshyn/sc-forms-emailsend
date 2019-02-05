@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Oshyn.Modules.Forms.EmailSubmitAction.Models
+﻿namespace Oshyn.Modules.Forms.EmailSubmitAction.Models
 {
     public class SendEmailModel
     {
