@@ -121,7 +121,7 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             if (string.IsNullOrWhiteSpace(addressValue) || string.IsNullOrWhiteSpace(fieldName) || mailMessage == null)
                 return false;
 
-            var addressList = addressValue.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var addressList = addressValue.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
             var addressCollection = mailMessage.GetType().GetProperty(fieldName)?.GetValue(mailMessage) as MailAddressCollection;
 
             if (addressList.Length <= 0 || addressCollection == null)
@@ -164,10 +164,7 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
                 var matchingField = formFields.FirstOrDefault(f => f.Name == tokenName);
 
                 if (matchingField != null)
-                {
-                    string fieldValue = GetFieldStringValue(matchingField);
-                    template = template.Replace(token.Value, fieldValue);
-                }
+                    template = template.Replace(token.Value, GetFieldStringValue(matchingField));
 
                 usedTokens.Add(token.Value, true);
             }

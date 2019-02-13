@@ -9,7 +9,7 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Models
         public string Host { get; set; }
 
         [XmlElement(typeof(int))]
-        public int Port { get; set; } = 0;
+        public int Port { get; set; }
 
         [XmlElement]
         public string Login { get; set; }
