@@ -60,6 +60,8 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Tests
             formData.Fields = new List<IViewModel>
             {
                 new StringInputViewModel { Name = "Text", Value = "Sample Simple Text" },
+                new StringInputViewModel { Name = "Text2", Value = "" },
+                new StringInputViewModel { Name = "Text3", Value = null },
                 new NumberViewModel { Name = "Number", Value = 1.55 },
                 new ListBoxViewModel { Name = "Single List", Value = new List<string> { "Value 1" } },
                 new ListBoxViewModel { Name = "Multiple List", Value = new List<string> { "Value 1", "Value 2" } },
@@ -70,10 +72,10 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Tests
             };
 
             var tokenText =
-                "[Text]; [Number]; [Single List]; [Multiple List]; [Dropdown]; [Checkbox]; [Checkbox List]; [Date]; This should not be replaced.";
+                "[Text]; [Text2]; [Text3]; [Number]; [Single List]; [Multiple List]; [Dropdown]; [Checkbox]; [Checkbox List]; [Date]; This should not be replaced.";
 
             var expectedText =
-                $"Sample Simple Text; 1.55; Value 1; Value 1, Value 2; Value 1; True; Check 1, Check 3; {today}; This should not be replaced.";
+                $"Sample Simple Text; ; ; 1.55; Value 1; Value 1, Value 2; Value 1; True; Check 1, Check 3; {today}; This should not be replaced.";
 
             var invokeObj = new InvokeSendEmailAction(submitActionDataMock);
             var replacedText = invokeObj.InvokeReplaceTokens(tokenText, formData.Fields);

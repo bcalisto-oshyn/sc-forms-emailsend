@@ -184,7 +184,7 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
                 return string.Join(", ", listField.Value);
             }
 
-            return field?.GetType().GetProperty("Value")?.GetValue(field, null).ToString() ?? string.Empty;
+            return field?.GetType().GetProperty("Value")?.GetValue(field, null)?.ToString() ?? string.Empty;
         }
 
         protected CustomSmtpModel ParseSmtpSettings(string settingsField)
