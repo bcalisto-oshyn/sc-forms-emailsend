@@ -1,15 +1,15 @@
 ﻿SITECORE 9 FORMS SEND EMAIL SUBMIT ACTION
 By Oshyn, Inc.
-Version 1.1.1 (11/11/2019)
+Version 1.1.2 (12/11/2019)
 
 This is a simple Send Email submit action for Sitecore 9 Forms, 
 similar to the Send Email Message action in WFFM.
 
 RELEASE NOTES
 
-This release includes a fix for a bug that returned a 500 server
-error when the email text was null. Fix by PJ Slauta. This version
-has been compiled with .NET Framework 4.7.2.
+This release includes a fix for a bug that displayed empty/unused
+field tokens in the email. Thanks to Lindsay Sullivan and Eric
+Bradford from Cylogy, Inc. for reporting this bug.
 
 INSTALLATION
 

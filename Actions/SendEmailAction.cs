@@ -163,8 +163,15 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
                 var tokenName = token.Value.TrimStart('[').TrimEnd(']');
                 var matchingField = formFields.FirstOrDefault(f => f.Name == tokenName);
 
-                if (matchingField != null)
+                if (matchingField != null) 
+                { 
                     template = template.Replace(token.Value, GetFieldStringValue(matchingField));
+                }
+                else
+                {
+                    template = template.Replace(token.Value, string.Empty);
+                    Logger?.Warn($"Field {token.Value} not found in form, replacing by empty string.");
+                }
 
                 usedTokens.Add(token.Value, true);
             }
