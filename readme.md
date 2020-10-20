@@ -40,12 +40,13 @@ If you don't want to use the in-action configuration, you can create a Sitecore 
       <setting name="MailServerPort" set:value="[Port number of your SMTP server]" />
       <setting name="MailServerUserName" set:value="[Username to login to your SMTP server]" />
       <setting name="MailServerPassword" set:value="[Password to login to your SMTP server]" />
+      <setting name="MailServerUseSsl" set:value="[true to use TLS/SSL or false not to use it]">
     </settings>
   </sitecore>
 </configuration>
 ```
 
-If your server requires TLS/SSL, you need to modify your Sitecore installation's main Web.config file and add the `/configuration/system.net/smtp` section:
+If your server requires TLS/SSL and your version of Sitecore does not support the MailServerUseSsl setting, you need to modify your Sitecore installation's main Web.config file and add the `/configuration/system.net/smtp` section:
 
 ```xml
 <configuration>

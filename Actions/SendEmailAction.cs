@@ -87,6 +87,7 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
             var smtpUserNameSetting = Settings.GetSetting("MailServerUserName");
             var smtpPasswordSetting = Settings.GetSetting("MailServerPassword");
             var smtpPortSetting = Settings.GetIntSetting("MailServerPort", 0);
+            var smtpSslSettingString = Settings.GetSetting("MailServerUseSsl", string.Empty);
 
             if (!string.IsNullOrWhiteSpace(smtpServerSetting))
                 smtpClient.Host = smtpServerSetting;
@@ -110,6 +111,9 @@ namespace Oshyn.Modules.Forms.EmailSubmitAction.Actions
                 smtpClient.Port = customSmtp.Port;
 
             //Custom SMTP EnableSsl override
+            if (!string.IsNullOrWhiteSpace(smtpSslSettingString) && bool.TryParse(smtpSslSettingString, out bool smtpSslSetting))
+                smtpClient.EnableSsl = smtpSslSetting;
+
             if (customSmtp.EnableSsl != null)
                 smtpClient.EnableSsl = customSmtp.EnableSsl.Value;
 
